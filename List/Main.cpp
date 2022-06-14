@@ -1,106 +1,125 @@
-// List v0.2
+// List v0.3
 #include <iostream>
 
 using namespace std;
 
 struct List
 {
+	List* Front;
 	int Value;
 	List* Back;
 };
 
-void AddObject(List* _Next, const int& _Value);
+void push_back(List* _Current, const int& _Value);
+void pop_back(List* _Current);
+void insert(List* _Current, const int _Where, const int& _Value);
+void erase(List* _Current, const int _Where);
 
-void Output(List* _Next);
+void Output(List* _Current);
 
-// 숙제 : 중간에 추가하기
-void insert(List* _Next, const int _Where, const int& _Value);
-
-void erase(List* _Next, const int _Where);
+List* End;
 
 int main(void)
 {
 	List* NumberList = new List;
+
+	NumberList->Front = nullptr;
 	NumberList->Value = 0;
 	NumberList->Back = nullptr;
 
 	for (int i = 0; i < 10; ++i)
-		AddObject(NumberList, i * 10 + 10);
-	
-	Output(NumberList);
-	cout << endl;
+		push_back(NumberList, i * 10 + 10);
 
-	insert(NumberList, 0, 666);
+	cout << "insert ======" << endl;
+	insert(NumberList, 2, 666);
 	Output(NumberList);
-	cout << endl;
 
-	cout << "erase" << endl;
+	cout << "erase ======" << endl;
 	erase(NumberList, 3);
+	Output(NumberList);
+
+	cout << "pop_back ======" << endl;
+	pop_back(NumberList);
 	Output(NumberList);
 
 	return 0;
 }
 
-void AddObject(List* _Next, const int& _Value)
+void push_back(List* _Current, const int& _Value)
 {
-	if (_Next->Back == nullptr)
+	if (_Current->Back == nullptr)
 	{
 		List* Temp = new List;
+
+		Temp->Front = _Current;
 		Temp->Value = _Value;
 		Temp->Back = nullptr;
 
-		_Next->Back = Temp;
+		_Current->Back = Temp;
+
+		End = Temp;
 	}
 	else
-		AddObject(_Next->Back, _Value);
-
+		push_back(_Current->Back, _Value);
 }
 
-void Output(List* _Next)
+void pop_back(List* _Current)
 {
-	if (_Next->Back)
-		cout << "ShowValue _Back->Value : " << _Next->Back->Value << endl;
-	else cout << "nullptr" << endl;
-
-	if (_Next->Back != nullptr)
-		Output(_Next->Back);
+	if (_Current->Back == nullptr)
+	{
+		End = _Current->Front;
+		_Current->Front->Back = nullptr;
+		
+		delete _Current;
+		_Current = nullptr;
+	}
+	else
+		pop_back(_Current->Back);
 }
 
-void insert(List* _Next, const int _Where, const int& _Value)
+void insert(List* _Current, const int _Where, const int& _Value)
 {
 	if (_Where == 0)
 	{
 		List* Temp = new List;
 
+		Temp->Front = _Current;
 		Temp->Value = _Value;
+		Temp->Back = _Current->Back;
 
-		Temp->Back = _Next->Back;
-		_Next->Back = Temp;
+		_Current->Back = Temp;
 	}
 	else
-		insert(_Next->Back, _Where - 1, _Value);
+		insert(_Current->Back, _Where - 1, _Value);
 }
 
-List* Temp2 = nullptr;
-
-void erase(List* _Next, const int _Where)
+void erase(List* _Current, const int _Where)
 {
 	if (_Where == 0)
 	{
-		List* Temp = _Next;
-		_Next = _Next->Back;
+		_Current->Front->Back = _Current->Back;
+		_Current->Back->Front = _Current->Front;
 
-		delete Temp;
-		Temp = nullptr;
-	}
-	else if (_Where == 1)
-	{
-		List* Temp = _Next->Back;
-		_Next->Back = _Next->Back->Back;
-		
-		delete Temp;
-		Temp = nullptr;
+		delete _Current;
+		_Current = nullptr;
 	}
 	else
-		erase(_Next->Back, _Where - 1);
+		erase(_Current->Back, _Where - 1);
+}
+
+void Output(List* _Current)
+{
+	if (_Current->Front)
+		cout << "ShowValue Front->Value : " << _Current->Front->Value << endl;
+	
+	cout << "This Value : " << _Current->Value << endl;
+
+	if (_Current->Back)
+		cout << "ShowValue Back->Value : " << _Current->Back->Value << endl;
+	else cout << "nullptr" << endl;
+
+	cout << endl;
+
+	if (_Current->Back != nullptr)
+		Output(_Current->Back);
 }
